@@ -7,22 +7,25 @@ export const login = async (req, res) => {
   const { body } = req;
   try {
     const user = await UserModel.findOne({ userName: body.userName });
-    console.log(user);
+   
     if (!user) {
-      throw new Error('usuario no encontrado'); //aca va fail login
+      res.render("failLogin",{error:"usuario no encontrado en la base de datos"}) //aca va fail login
     }
-    
-    const password =  jwt.verify(user.password, process.env.SECRET_KEY).password;
-    console.log(user.password);
-    console.log(body.password)
-    console.log(process.env.SECRET_KEY)
-    console.log(password)
-    // if (body.password === password) {
-    //   const token = jwt.sign({ user }, process.env.SECRET_KEY);
-    //   res.json({ token });
-    // } else {
-    //   res.send('usuario o clave incorrecta!');
-    // }
+    const password = jwt.verify(user.password, process.env.SECRET_KEY).password;
+    // console.log(password,"pasword desencriptada")
+    if (body.password === password) {
+      delete user.password
+      const token = jwt.sign({ user }, process.env.SECRET_KEY, { expiresIn: "10m" });
+      // res.json({ token });
+      res.header('Authorization',token).json({
+        message:"usuario autenticado",
+        token:token
+      })
+      // req.body.authorization=token
+      // res.redirect('/inicio')
+    } else {
+      res.send('usuario o clave incorrecta!');
+    }
   } catch (error) {
     console.log(error);
   }
