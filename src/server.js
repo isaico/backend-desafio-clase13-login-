@@ -32,10 +32,16 @@ app.use('/login',AuthRouter)
 app.get('/register',(req,res)=>{
   res.render('register')
 })
+app.delete('/logout')
+/** a la hora de pasar por header el token no explicaron como realizarlo y yo no se hacerlo
+ * si me podras explicar seria optimo, ya q solo me da acceso al /inicio si en el header
+ * Authorization manualmente le pongo  el token...
+ */
 app.get('/inicio',auth,(req,res)=>{
   const {user}=req.user
   console.log(user,"asd")
-  res.send(`estas autorizado , ${user.firstName} ${user.lastName}`)
+  // res.send(`estas autorizado , ${user.firstName} ${user.lastName}`)
+  res.render('index',{user:user.userName})
 })
 
 const server = app.listen(PORT, () => {
