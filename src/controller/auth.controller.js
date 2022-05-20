@@ -1,28 +1,33 @@
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../models/user.model.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
 export const login = async (req, res) => {
   const { body } = req;
   try {
     const user = await UserModel.findOne({ userName: body.userName });
-   
+
     if (!user) {
-      res.render("failLogin",{error:"usuario no encontrado en la base de datos"}) //aca va fail login
+      res.render('failLogin', {
+        error: 'usuario no encontrado en la base de datos',
+      }); //aca va fail login
     }
     const password = jwt.verify(user.password, process.env.SECRET_KEY).password;
     if (body.password === password) {
-      
-      const token = jwt.sign({ user }, process.env.SECRET_KEY, { expiresIn: "10m" });
+      const token = jwt.sign({ user }, process.env.SECRET_KEY, {
+        expiresIn: '10m',
+      });
+      // // req.session.token=token
       // res.header('Authorization',token).json({
       //   message:"usuario autenticado",
       //   token:token
       // })
-      res.json({token:token})
-     
+      // console.log(token)
+      // res.setHeader('authorization', token);
+      req.session.token=token
+      res.redirect('/inicio')
+      // res.json({ token: token });
     } else {
-      res.render('failLogin',{error:' clave incorrecta!'});
+      res.render('failLogin', { error: ' clave incorrecta!' });
     }
   } catch (error) {
     console.log(error);
